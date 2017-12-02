@@ -48,4 +48,129 @@ RSpec.describe CampaignsController, type: :controller do
       end
     end
   end
+
+  describe 'POST #create' do
+    # requisão post para cada teste desse contexto
+    before(:each) do
+      @campaign_attrs = attributes_for(:campaign, user: @current_user)
+      post :create, params: { campaign: @campaign_attrs }
+    end
+
+    it 'Redirect to new campaign' do
+      expect(response).to have_http_status(302)
+      expect(response).to redirect_to("/campaigns/#{Campaign.last.id}")
+    end
+
+    it 'Create campaign with right attributes' do
+      expect(Campaign.last.user).to eql(@current_user)
+      expect(Campaign.last.title).to eql(@campaign_attrs[:title])
+      expect(Campaign.last.description).to eql(@campaign_attrs[:description])
+      expect(Campaign.last.status).to eql('pending')
+    end
+
+    it 'Create campaign with owner as a member' do
+      expect(Campaign.last.members.last.name).to eql(@current_user.name)
+      expect(Campaign.last.members.last.email).to eql(@current_user.email)
+    end
+  end
+
+  describe 'DELETE #destroy' do
+    before(:each) do
+      request.env['HTTP_ACCEPT'] = 'application/json'
+    end
+
+    context 'User is the Campaign owner' do
+      it 'Returns http success' do
+        campaign = create(:campaign, user: @current_user)
+        delete :destroy, params: { id: campaign.id }
+        expect(response).to have_http_status(:success)
+      end
+    end
+
+    context "User isn't the Campaign owner" do
+      it 'Return http forbidden' do
+        campaign = create(:campaign)
+        delete :destroy, params: { id: campaign.id }
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+  end
+
+  describe 'PUT #update' do
+    before(:each) do
+      @new_campaign_attributes = attributes_for(:campaign)
+      request.env['HTTP_ACCEPT'] = 'application/json'
+    end
+
+    context 'User is the Campaign owner' do
+      before(:each) do
+        campaign = create(:campaign, user: @current_user)
+        put :update, params: { id: campaign.id, campaign: @new_campaign_attributes }
+      end
+
+      it 'return http success' do
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'Campaign have the new attributes' do
+        expect(Campaign.last.title).to eq(@new_campaign_attributes[:title])
+        expect(Campaign.last.description).to eq(@new_campaign_attributes[:description])
+      end
+    end
+
+    context "User isn't the Campaign owner" do
+      it 'return http forbidden' do
+        campaign = create(:campaign)
+        put :update, params: { id: campaign.id, campaign: @new_campaign_attributes }
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+  end
+
+  describe 'POST #raffle' do
+    before(:each) do
+      request.env['HTTP_ACCEPT'] = 'application/json'
+    end
+
+    context 'User is the compaign owner' do
+      before(:each) do
+        @campaign = create(:campaign, user: @current_user)
+      end
+
+      context 'Has more than two members' do
+        before(:each) do
+          create(:member, campaign: @campaign)
+          create(:member, campaign: @campaign)
+          create(:member, campaign: @campaign)
+          post :raffle, params: { id: @campaign.id }
+        end
+
+        it 'return http success' do
+          expect(response).to have_http_status(:success)
+        end
+      end
+
+      context 'No more than two members' do
+        before(:each) do
+          create(:member, campaign: @campaign)
+          post :raffle, params: { id: @campaign.id }
+        end
+
+        it 'return http unprocessable_entity' do
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+    end
+
+    context "User isn't the Campaign Owner" do
+      before(:each) do
+        @campaign = create(:campaign)
+        post :raffle, params: { id: @campaign.id }
+      end
+
+      it 'returns http forbidden' do
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+  end
 end
