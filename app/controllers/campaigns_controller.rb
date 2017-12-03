@@ -1,14 +1,18 @@
 class CampaignsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_campaign, only: %i[show destroy update raffle]
-  before_action :is_owner?, only: %i[show destroy update raffle]
 
-  def show; end
+  before_action :set_campaign, only: [:show, :destroy, :update, :raffle]
+  before_action :is_owner?, only: [:show, :destroy, :update, :raffle]
 
-  def index; end
+  def show
+  end
+
+  def index
+    @campaigns = current_user.campaigns
+  end
 
   def create
-    @campaign = Campaign.new(campaign_params)
+    @campaign = Campaign.new(user: current_user, title: 'Nova Campanha', description: 'Descreva sua campanha...')
 
     respond_to do |format|
       if @campaign.save
@@ -44,7 +48,7 @@ class CampaignsController < ApplicationController
       elsif @campaign.members.count < 3
         format.json { render json: 'A campanha precisa de pelo menos 3 pessoas', status: :unprocessable_entity }
       else
-        #CampaignRaffleJob.perform_later @campaign
+        CampaignRaffleJob.perform_later @campaign
         format.json { render json: true }
       end
     end
@@ -57,7 +61,7 @@ class CampaignsController < ApplicationController
   end
 
   def campaign_params
-    params.require(:campaign).permit(:title, :description).merge(user: current_user)
+    params.require(:campaign).permit(:title, :description, :event_date, :event_hour, :location).merge(user: current_user)
   end
 
   def is_owner?
