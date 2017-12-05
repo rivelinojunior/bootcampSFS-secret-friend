@@ -44,6 +44,15 @@ services:
     volumes:
       - /box
 
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile-nginx
+    links:
+      - app
+    ports:
+      - "80:80"
+
 volumes:
   redis:
   postgres:
