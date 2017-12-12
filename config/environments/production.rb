@@ -71,18 +71,13 @@ Rails.application.configure do
   # Use default logging formatter so that PID and timestamp are not suppressed.
   config.log_formatter = ::Logger::Formatter.new
 
-  config.action_mailer.default_url_options = { :host => 'http://localhost:3000' }
-  config.action_mailer.delivery_method = :smtp
-
+  config.action_mailer.default_url_options = { :host => 'http://amigosecreto.rivelinojunior.com' }
+  config.action_mailer.delivery_method = :mailgun
   config.action_mailer.raise_delivery_errors = true
-  config.action_mailer.smtp_settings = {
-    address:              ENV["SMTP_ADDRESS"],
-    port:                 ENV["SMTP_PORT"],
-    domain:               ENV["SMTP_DOMAIN"],
-    user_name:            ENV["SMTP_USER"],
-    password:             ENV["SMTP_PASSWORD"],
-    authentication:       :plain,
-    enable_starttls_auto: true
+  
+  config.action_mailer.mailgun_settings = {
+    api_key: ENV["API_KEY_MAILGUN"],
+    domain: ENV["DOMAIN_MAILGUN"]
   }
 
   # Use a different logger for distributed setups.
