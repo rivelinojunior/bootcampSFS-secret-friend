@@ -38,7 +38,7 @@ RSpec.describe MembersController, type: :controller do
         end
       end
 
-      context 'Member is not valdid' do
+      context 'Member is not valid' do
         it 'return http unprocessable_entity' do
           post :create, params: { member: { name: '', email: '', campaign_id: @campaign.id } }
           expect(response).to have_http_status(:unprocessable_entity)
@@ -121,7 +121,7 @@ RSpec.describe MembersController, type: :controller do
       context 'Member is valid' do
         before(:each) do
           @member = create(:member, campaign: @campaign)
-          
+
           put :update, params: { id: @member.id, member: @member_new_attrs }
         end
 
