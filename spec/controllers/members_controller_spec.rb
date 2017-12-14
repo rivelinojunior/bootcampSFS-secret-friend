@@ -106,4 +106,62 @@ RSpec.describe MembersController, type: :controller do
       end
     end
   end
+
+  describe 'PUT #update' do
+    before(:each) do
+      request.env['HTTP_ACCEPT'] = 'application/json'
+      @member_new_attrs = attributes_for(:member)
+    end
+
+    context 'User with permission' do
+      before(:each) do
+        @campaign = create(:campaign, user: @current_user)
+      end
+
+      context 'Member is valid' do
+        before(:each) do
+          @member = create(:member, campaign: @campaign)
+          
+          put :update, params: { id: @member.id, member: @member_new_attrs }
+        end
+
+        it 'return http success' do
+          expect(response).to have_http_status(:success)
+        end
+
+        it 'Member update with datas right' do
+          member_updated = Member.find(@member.id)
+
+          expect(member_updated.name).to eql(@member_new_attrs[:name])
+          expect(member_updated.email).to eql(@member_new_attrs[:email])
+        end
+      end
+
+      context 'Member is not valid' do
+        it 'return http unprocessable_entity' do
+          member = create(:member, campaign: @campaign)
+
+          put :update, params: { id: member.id, member: { name: '', email: '' } }
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it 'Member exist' do
+          member = create(:member, campaign: @campaign)
+          other_member = create(:member, campaign: @campaign)
+
+          put :update, params: { id: member.id, member: { name: other_member.name, email: other_member.email } }
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+    end
+
+    context 'User without permission' do
+      it 'return http forbidden' do
+        member = create(:member)
+
+        put :update, params: { id: member.id, member: @member_new_attrs }
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+  end
 end
