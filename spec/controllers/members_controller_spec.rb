@@ -63,4 +63,47 @@ RSpec.describe MembersController, type: :controller do
       end
     end
   end
+
+  describe 'DELETE #destroy' do
+    before(:each) do
+      request.env['HTTP_ACCEPT'] = 'application/json'
+    end
+
+    context 'User with permission' do
+      context 'Member found' do
+        before(:each) do
+          @campaign = create(:campaign, user: @current_user)
+          @member = create(:member, campaign: @campaign)
+          delete :destroy, params: { id: @member.id }
+        end
+
+        it 'return http success' do
+          expect(response).to have_http_status(:success)
+        end
+
+        it 'Member deleted' do
+          expect(Member.exists?(id: @member.id)).to eql(false)
+        end
+
+        it 'Member removed of your campaign' do
+          expect(@campaign.members.exists?(id: @member.id)).to eql(false)
+        end
+      end
+
+      context 'Member not found' do
+        it 'Redirects to root' do
+          delete :destroy, params: { id: 898 }
+          expect(response).to redirect_to('/')
+        end
+      end
+    end
+
+    context 'User without permission' do
+      it 'return http forbidden' do
+        member = create(:member)
+        delete :destroy, params: { id: member.id }
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+  end
 end
