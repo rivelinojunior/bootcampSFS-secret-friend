@@ -3,6 +3,7 @@ class Member < ApplicationRecord
   after_save :set_campaign_pending
   after_destroy :set_campaign_pending
   validates :name, :email, :campaign, presence: true
+  validate :uniqueness_member_by_campaign
 
   def set_pixel
     self.open = false
@@ -10,12 +11,20 @@ class Member < ApplicationRecord
       random_token = SecureRandom.urlsafe_base64(nil, false)
       break random_token unless Member.exists?(token: random_token)
     end
-    self.save!
+    save!
   end
 
   protected
 
-    def set_campaign_pending
-      self.campaign.update(status: :pending)
-    end
+  def set_campaign_pending
+    campaign.update(status: :pending)
+  end
+
+  private
+
+  def uniqueness_member_by_campaign
+    errors.add(:name, 'Esse membro já foi adicionado.') if campaign &&
+                                                           campaign.members.exists?(name: name) &&
+                                                           campaign.members.exists?(email: email)
+  end
 end
