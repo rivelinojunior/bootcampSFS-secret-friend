@@ -2,7 +2,7 @@ class MembersController < ApplicationController
   before_action :authenticate_user!, except: [:opened]
 
   before_action :set_member, only: %i[show destroy update]
-  before_action :is_owner?, only: %i[destroy update]
+  before_action :is_owner?, only: %i[create destroy update]
   before_action :set_member_by_token, only: [:opened]
 
   def create
@@ -52,7 +52,9 @@ class MembersController < ApplicationController
   end
 
   def is_owner?
-    unless current_user == @member.campaign.user
+    campaign = @member.campaign if @member
+    campaign ||= Campaign.find(params[:member][:campaign_id])
+    unless current_user == campaign.user
       respond_to do |format|
         format.json { render json: false, status: :forbidden }
       end
