@@ -7,6 +7,7 @@ An application where people can make the raffle for the joking of the secret fri
 This project has with purpose the learning new skills. The project was developed following the lessons of bootcamp in the [OneBitCode](onebitcode.com), with exception of some features that was developed for to conclude the challenges proposed. Follow the features developed for me (challenges):  
 * Tests of the Members Controller.
 * Send email of warn, in case of to occur erros in the Job of raffle.
+* Test in the RaffleService for verify if a member x don't get a member y that get the member x.
 
 ## Prerequisites
 
