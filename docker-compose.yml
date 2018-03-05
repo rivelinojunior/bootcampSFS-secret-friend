@@ -27,6 +27,8 @@ services:
       - 'website'
     build: .
     command: bash start_jobs
+    stdin_open: true
+    tty: true
     volumes:
       - '.:/nosso_amigo_secreto'
     volumes_from:
@@ -38,6 +40,8 @@ services:
       - 'redis'
     build: .
     command: bash start
+    stdin_open: true
+    tty: true
     ports:
       - '3000:3000'
     volumes:
