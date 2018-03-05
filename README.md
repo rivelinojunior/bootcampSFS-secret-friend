@@ -9,6 +9,7 @@ This project has with purpose the learning new skills. The project was developed
 * Send email of warn, in case of to occur erros in the Job of raffle.
 * Test in the RaffleService for verify if a member x don't get a member y that get the member x.
 * Create modal of confirmation for the campaign delete.
+* Show the campaigns of current user on home page, if there be.
 
 ## Prerequisites
 
