@@ -23,8 +23,9 @@ class Member < ApplicationRecord
   private
 
   def uniqueness_member_by_campaign
-    errors.add(:name, 'Esse membro já foi adicionado.') if campaign &&
-                                                           campaign.members.exists?(name: name) &&
-                                                           campaign.members.exists?(email: email)
+    errors.add(:name, 'Esse membro já foi adicionado.') unless campaign && 
+                                                        campaign.members
+                                                                .where.not(id: id)
+                                                                .find_by(email: email, name:name).nil?
   end
 end
