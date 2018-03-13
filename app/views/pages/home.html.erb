@@ -1,5 +1,5 @@
 <div class="row home">
-  <% if current_user.campaigns.any? %>
+  <% if user_signed_in? && current_user.campaigns.any? %>
     <div class="row campaigns">
       <div class="col s8 offset-s2">
         <p class="title">Campanhas</p>
