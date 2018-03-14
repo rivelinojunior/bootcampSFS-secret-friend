@@ -7,10 +7,10 @@ class MembersController < ApplicationController
 
   def create
     @member = Member.new(member_params)
-
     respond_to do |format|
       if @member.save
-        format.json { render json: @member }        
+        @campaign = @member.campaign
+        format.js        
       else
         format.json { render json: @member.errors, status: :unprocessable_entity }
       end
