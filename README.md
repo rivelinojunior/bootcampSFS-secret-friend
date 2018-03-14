@@ -10,6 +10,7 @@ This project has with purpose the learning new skills. The project was developed
 * Test in the RaffleService for verify if a member x don't get a member y that get the member x.
 * Create modal of confirmation for the campaign delete.
 * Show the campaigns of current user on home page, if there be.
+* Allow async update of member fields on campaign show page
 
 ## Prerequisites
 
